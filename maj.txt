@@ -1,0 +1,5 @@
+Liste des modifications à apporter :
+	- Mettre en place des choix par défaut
+	- Mettre en place un fichier listant tous les produits
+	- Mettre en place des codes pour écrire les produits plus facilement
+	- Mettre en place une nouvelle interface pour lire plus facilement

@@ -24,7 +24,7 @@ class Cafeteria
 	#	- le nom d'un produit (voir bdd),
 	#	- la quantité (1 ou plus),
 	#	- le statut de l'acheteur (membre, non membre)
-	
+
 	# Tous les statuts possibles
 	statutMembre = "membre"
 	statutNonMembre = "non membre"
@@ -42,7 +42,7 @@ class Cafeteria
 			print "	Produit supplémentaire : "
 			produitSup = gets.chomp
 		end
-	
+
 		# Quantité du produit de la commande
 		print "	Quantité : "
 		uneQuantite = gets.chomp
@@ -53,34 +53,36 @@ class Cafeteria
 			while uneQuantite.to_i < 1 do
 				print "Erreur, la quantité doit être supérieur à 0\n	Quantité : "
 				uneQuantite = gets.chomp
-			end	
-		end
-	
-		# Statut de l'acheteur de la commande
-		print "	Statut : "
-		unStatut = gets.chomp
-		# Mise à défaut de statut si aucun statut n'a été précisé
-		if unStatut.to_s == "" then
-			unStatut = statutMembre
-		else
-			while unStatut != statutMembre && unStatut != statutNonMembre do
-				print "Erreur, les statuts possibles sont : #{statutMembre}, #{statutNonMembre}\n	Statut : "
-				unStatut = gets.chomp
 			end
 		end
-	
+
+
+		begin
+			# Statut de l'acheteur de la commande
+			print "	Membre ? (y/n): "
+			unStatut = gets.chomp
+			# Mise à défaut de statut si aucun statut n'a été précisé
+			if unStatut.to_s == "" || unStatut == "y" then
+				unStatut = statutMembre
+			elsif unStatut == "n" then
+				unStatut = statutNonMembre
+			else
+				print " Erreur "
+			end
+		end while unStatut != statutMembre && unStatut != statutNonMembre
+
+
 		# Création de la commande et récupération du prix en fonction du statut de la personne
 		laCommande = Commande.creer(unProduit, uneQuantite, unStatut)
 		prixUnitaire = laCommande.valider(unProduit, unStatut)
 
 		if prixUnitaire.to_s != "0.0" then
-	
+
 			# Affichage du prix total
 			prixTotal = prixUnitaire.to_f*uneQuantite.to_i
 
-		
 			print "\n	Prix de la commande : #{prixTotal}€\n"
-		
+
 			# Ecriture de la commande dans un fichier txt
 			laCommande.ecrire(unProduit, produitSup, uneQuantite, prixUnitaire)
 			laCommande.ecrireProduitJournalier(unProduit, produitSup, uneQuantite, unStatut)
@@ -89,11 +91,10 @@ class Cafeteria
 		else
 			print "Erreur, le prix n'est de "+unProduit+" n'est pas reconnu\n"
 		end
-		
-		
+
 		print "\n\n\n\n"
 		print "==========NOUVELLE COMMANDE==========\n"
 	end
-			
+
 
 end # Marqueur de fin de classe

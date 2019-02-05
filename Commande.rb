@@ -9,7 +9,7 @@
 # La méthode valider va trouver le prix de l'article dans une base de donnée en fonction du statut de la personne
 #   et va le renvoyer
 #   Le fichier de la base de donnée est "Produit.txt"
-# La méthode ecrire permet d'écrire la commande dans un fichier txt avec pour nom la date d'aujourd'hui sous 
+# La méthode ecrire permet d'écrire la commande dans un fichier txt avec pour nom la date d'aujourd'hui sous
 #   forme "dd-mm"
 
 
@@ -27,7 +27,7 @@ class Commande
 	def valider(unProduit, unStatut)
 		# Cette méthode recherche le nom du produit et, s'il le trouve,
 		# récupère le prix du produit en fonction du statut du membre
-		# Le fichier sauvegarde la commande dans un fichier txt avec 
+		# Le fichier sauvegarde la commande dans un fichier txt avec
 		#	le nom du produit
 		#	la quantité
 		#	le produit
@@ -37,14 +37,14 @@ class Commande
 		# une erreur est envoyée en précisant qu'il ne connait pas le produit
 		dossierProduit = "./Produit/"
 		nomDuFichier = dossierProduit+"Produit.txt"
-		
+
 			# Lecture d'une ligne
 		lecture = File.open(nomDuFichier, "r").readline
 		#puts lecture
-	
+
 		# Lecture de l'ensemble du fichier
 		lecture = File.readlines(nomDuFichier)
-		lecture.each { |ligne| 
+		lecture.each { |ligne|
 			lesMots = ligne.split('><')
 			if unProduit == lesMots[1] then
 				if unStatut == "membre" then
@@ -53,7 +53,7 @@ class Commande
 					return lesMots[3]
 				end
 			end
-		} 
+		}
 		return "0.0"
 	end
 
@@ -64,10 +64,10 @@ class Commande
 
 		dossierFacture = "./Facture/"
 		nomDuChemin = dossierFacture+nomFichierFacture
-		
+
 		#File::new(nomFichierFacture, "a+")
 		leFichier = File.open(nomDuChemin, "a+")
-		leFichier.write unProduit+";"+produitSup+";"+uneQuantite.to_s+";"+unPrix+"\n"
+		leFichier.write unProduit+" "+produitSup+"      "+uneQuantite.to_s+"        "+unPrix+"\n"
 		leFichier.close
 	end
 
@@ -88,34 +88,46 @@ class Commande
 		nomDuChemin = dossierFacture+dossierSatut+nomFichierFacture
 
 		if File.exist?(nomDuChemin) then
-			#lecture = File.open(nomDuChemin, "r").readline
-			#puts lecture
-		
+
 			# Lecture de l'ensemble du fichier
-			lecture = File.open(nomDuChemin, "r+").readlines
-			lecture.each { |ligne| 
-				leMot = ligne.split(';')
-				if unProduit == leMot[0] then
-					leNombre = leMot[1].to_i + uneQuantite.to_i
-					lecture.write unProduit+";"+leNombre.to_s+"\n"
-
+			b = false # Booleen qui permet de savoir si le produit a déjà une entrée
+			fichier = File.open(nomDuChemin, "r+")
+			lecture = fichier.readlines
+			# On lit chaque entrée (ligne) du fichier
+			lecture.map! { |ligne|
+				ligne = ligne.split(' ')
+				if unProduit == ligne[0] && !b then
+					# Si le produit a déjà une entrée, on y ajoute le nombre de vente de la commande
+					b = true
+					ligne[1] = (ligne[1].to_i + uneQuantite.to_i).to_s # Addition et convertion en string
 				end
+				ligne
 			}
-
-			lecture.write unProduit+";"+uneQuantite.to_s+"\n"
-			lecture.close
+			unless b then
+				# Si le produit n'avais pas d'entrée, on fait une nouvelle entrée
+				fichier.write unProduit+"      "+uneQuantite.to_s+"\n"
+				fichier.close
+			else
+				# Sinon, on réécrit les entrées dans le fichier
+				# (à chercher pour une simple réécriture de l'entrée désirée)
+				fichier = File.open(nomDuChemin, "w")
+				lecture.each{ |ligne|
+					fichier.write ligne[0]+"      "+ligne[1]+"\n"
+				}
+				fichier.close
+			end
 
 		else
-		
-			lecture = File.open(nomDuChemin, "a+")
-			lecture.write unProduit+";"+uneQuantite.to_s+"\n"
-			lecture.close
+			# Si le fichier n'existe pas, on le créé puis on y écrit la première entrée
+			fichier = File.open(nomDuChemin, "a+")
+			fichier.write unProduit+"      "+uneQuantite.to_s+"\n"
+			fichier.close
 		end
 	end
 
 	def dateFichier()
 		require 'date'
-		
+
 		dt = DateTime.now
 		dateNom = dt.day.to_s+"-"+dt.month.to_s+".txt"
 		#print dateNom
